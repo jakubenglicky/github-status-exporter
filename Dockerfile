@@ -15,8 +15,7 @@ WORKDIR /app
 COPY --from=builder /app/github-status-exporter /app/github-status-exporter
 
 RUN chown -R nobody /app \
-    && chmod 500 /app/github-status-exporter \
-    && chmod -R 700 /app/data
+    && chmod 500 /app/github-status-exporter
 
 USER nobody
 ENTRYPOINT ["/app/github-status-exporter"]

@@ -4,7 +4,7 @@ Github Status Exporter for Prometheus.
 
 ## Usage:
 ```bash
-docker run jakubenglicky/github-status-exporter -p 8080:8080
+docker run -p 8080:8080 jakubenglicky/github-status-exporter
 ```
 Visit http://localhost:8080/metrics
 
