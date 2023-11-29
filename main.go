@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"net/http"
-	"log"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"log"
+	"net/http"
 )
 
 var ePort int
@@ -14,19 +15,31 @@ func init() {
 }
 
 func main() {
-	components := GetGithubStatusComponents()
-	monitor := NewMonitor()
-
-	for _, component := range components {
-		if component.Status == "operational" {
-			monitor.GithubComponentStatus.WithLabelValues(component.Name, component.Status).Set(1)
-		} else {
-			monitor.GithubComponentStatus.WithLabelValues(component.Name).Set(0)
-		}
-	}
-
 	flag.Parse()
 
-	http.Handle("/metrics", promhttp.HandlerFor(monitor.Registry, promhttp.HandlerOpts{Registry: monitor.Registry}))
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	monitor := NewMonitor()
+	middleware := func(handlerFor http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			components, err := GetGithubStatusComponents()
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = w.Write([]byte("could not scrape GitHub status"))
+				return
+			}
+
+			for _, component := range components {
+				val := 0.0
+				if component.IsOperational() {
+					val = 1
+				}
+				monitor.GithubComponentStatus.WithLabelValues(component.Name, component.Status).Set(val)
+			}
+
+			handlerFor.ServeHTTP(w, r)
+		})
+	}
+
+	http.Handle("/metrics", middleware(promhttp.HandlerFor(monitor.Registry, promhttp.HandlerOpts{Registry: monitor.Registry})))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", ePort), nil))
 }

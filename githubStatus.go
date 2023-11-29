@@ -1,43 +1,44 @@
 package main
 
 import (
-	"net/http"
-	"log"
-	"io/ioutil"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 )
 
+const GithubStatusSummaryUrl = "https://www.githubstatus.com/api/v2/summary.json"
+
 type Response struct {
-    Components []Component `json:"components"`
+	Components []Component `json:"components"`
 }
 
 type Component struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
 	Status string `json:"status"`
 }
 
+func (c Component) IsOperational() bool {
+	return c.Status == "operational"
+}
 
-func GetGithubStatusComponents() []Component {
-
-	resp, err := http.Get("https://www.githubstatus.com/api/v2/summary.json")
-
+func GetGithubStatusComponents() ([]Component, error) {
+	resp, err := http.Get(GithubStatusSummaryUrl)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to get github status: %w", err)
 	}
+	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
-
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to read github status response: %w", err)
 	}
 
 	var result Response
-    err = json.Unmarshal(data, &result)
-
+	err = json.Unmarshal(data, &result)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to unmarshal github status response: %w", err)
 	}
 
-	return result.Components
+	return result.Components, nil
 }
