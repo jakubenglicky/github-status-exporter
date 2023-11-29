@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"net/http"
-	"log"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"log"
+	"net/http"
 )
 
 var ePort int
@@ -14,6 +15,8 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
+
 	components := GetGithubStatusComponents()
 	monitor := NewMonitor()
 
@@ -25,8 +28,6 @@ func main() {
 		}
 	}
 
-	flag.Parse()
-
 	http.Handle("/metrics", promhttp.HandlerFor(monitor.Registry, promhttp.HandlerOpts{Registry: monitor.Registry}))
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", ePort), nil))
 }
