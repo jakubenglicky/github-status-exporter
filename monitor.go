@@ -3,7 +3,7 @@ package main
 import "github.com/prometheus/client_golang/prometheus"
 
 type Monitor struct {
-	Registry                *prometheus.Registry
+	Registry              *prometheus.Registry
 	GithubComponentStatus *prometheus.GaugeVec
 }
 

@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const GithubStatusSummaryUrl = "https://www.githubstatus.com/api/v2/summary.json"
+
 type Response struct {
 	Components []Component `json:"components"`
 }
@@ -16,8 +18,12 @@ type Component struct {
 	Status string `json:"status"`
 }
 
+func (c Component) IsOperational() bool {
+	return c.Status == "operational"
+}
+
 func GetGithubStatusComponents() ([]Component, error) {
-	resp, err := http.Get("https://www.githubstatus.com/api/v2/summary.json")
+	resp, err := http.Get(GithubStatusSummaryUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get github status: %w", err)
 	}

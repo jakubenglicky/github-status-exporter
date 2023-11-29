@@ -18,10 +18,10 @@ func main() {
 	flag.Parse()
 
 	monitor := NewMonitor()
-
 	middleware := func(handlerFor http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			components, err := GetGithubStatusComponents()
+
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, _ = w.Write([]byte("could not scrape GitHub status"))
@@ -29,11 +29,11 @@ func main() {
 			}
 
 			for _, component := range components {
-				if component.Status == "operational" {
-					monitor.GithubComponentStatus.WithLabelValues(component.Name, component.Status).Set(1)
-				} else {
-					monitor.GithubComponentStatus.WithLabelValues(component.Name).Set(0)
+				val := 0.0
+				if component.IsOperational() {
+					val = 1
 				}
+				monitor.GithubComponentStatus.WithLabelValues(component.Name, component.Status).Set(val)
 			}
 
 			handlerFor.ServeHTTP(w, r)
