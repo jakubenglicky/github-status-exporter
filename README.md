@@ -9,7 +9,19 @@ docker run -p 8080:8080 jakubenglicky/github-status-exporter
 Visit http://localhost:8080/metrics
 
 ## Alerts
-TODO
+```
+- name: Github Status
+  rules:
+    - alert: GithubComponentIsDown
+      expr: github_component_status == 0
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        title: Github component '{{ $labels.component }}' is in state '{{ $labels.status }}'
+        description: Github component '{{ $labels.component }}' is in state '{{ $labels.status }}' for more than 2 minutes. Github has some issue.
+        summary: Github component '{{ $labels.component }}' is in state '{{ $labels.status }}'
+```
 
 ## Metrics
 ```
