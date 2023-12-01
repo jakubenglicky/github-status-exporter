@@ -41,5 +41,19 @@ func main() {
 	}
 
 	http.Handle("/metrics", middleware(promhttp.HandlerFor(monitor.Registry, promhttp.HandlerOpts{Registry: monitor.Registry})))
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`
+		<html>
+		<head>
+		<title>Github Status Exporter</title>
+		</head>
+		<body>
+		<h1>Github Status Exporter</h1>
+		<p><a href="/metrics">Metrics</a></p>
+		</body>
+		</html>
+		`))
+	}))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", ePort), nil))
 }
