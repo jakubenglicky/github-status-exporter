@@ -1,5 +1,7 @@
 # Github Status Exporter
 
+[![Docker](https://github.com/jakubenglicky/github-status-exporter/actions/workflows/build.yml/badge.svg?branch=main)](https://hub.docker.com/repository/docker/jakubenglicky/github-status-exporter/general)
+
 Github Status Exporter for Prometheus.
 
 ## Usage:
