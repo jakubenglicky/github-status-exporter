@@ -33,7 +33,7 @@ func main() {
 				if component.IsOperational() {
 					val = 1
 				}
-				monitor.GithubComponentStatus.WithLabelValues(component.Name, component.Status).Set(val)
+				monitor.GithubComponentStatus.WithLabelValues(component.Name).Set(val)
 			}
 
 			handlerFor.ServeHTTP(w, r)

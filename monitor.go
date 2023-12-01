@@ -15,7 +15,7 @@ func NewMonitor() *Monitor {
 		GithubComponentStatus: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: "github_component_status",
 			Help: "Status of Github component",
-		}, []string{"component", "status"}),
+		}, []string{"component"}),
 	}
 
 	reg.MustRegister(monitor.GithubComponentStatus)
