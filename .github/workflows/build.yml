@@ -35,6 +35,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
+          tags: |
+            latest
+            ${{ github.ref }}
+            ${{ github.sha }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
